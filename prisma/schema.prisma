@@ -1,0 +1,44 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Monitor {
+  id            String       @id @default(cuid())
+  name          String
+  url           String
+  intervalMin   Int          @default(5)
+  active        Boolean      @default(true)
+  lastCheckedAt DateTime?
+  lastStatus    String?
+  lastLatencyMs Int?
+  clerkUserId   String
+  incidents     Incident[]
+  alertConfig   AlertConfig?
+  publicSlug    String?      @unique
+  createdAt     DateTime     @default(now())
+  deletedAt     DateTime?
+}
+
+model Incident {
+  id         String    @id @default(cuid())
+  monitorId  String
+  monitor    Monitor   @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  startedAt  DateTime  @default(now())
+  resolvedAt DateTime?
+  statusCode Int?
+  errorMsg   String?
+}
+
+model AlertConfig {
+  id        String  @id @default(cuid())
+  monitorId String  @unique
+  monitor   Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  type      String
+  config    Json
+}

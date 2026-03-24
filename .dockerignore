@@ -1,0 +1,15 @@
+node_modules
+dist
+build
+postgres
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+coverage
+.nyc_output
+.git
+.gitignore
+README.md
+docker-compose.yml
