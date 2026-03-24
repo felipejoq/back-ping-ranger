@@ -10,10 +10,7 @@ RUN npm ci --legacy-peer-deps
 # Copy source and config
 COPY . .
 
-# Generate Prisma client
-RUN npx prisma generate
-
-# Compile TypeScript
+# Compile TypeScript (includes prisma generate via build script)
 RUN npm run build
 
 
@@ -28,7 +25,6 @@ RUN npm ci --omit=dev --legacy-peer-deps
 
 # Copy compiled output and generated Prisma client
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/src/generated ./src/generated
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/prisma ./prisma
