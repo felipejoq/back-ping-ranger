@@ -152,7 +152,7 @@ export class SchedulerService {
     }
 
     // Emit SSE event to connected clients
-    this.eventsService.emit(monitor.clerkUserId, {
+    this.eventsService.emit(monitor.userId, {
       type: 'check_completed',
       monitorId: monitor.id,
       data: {

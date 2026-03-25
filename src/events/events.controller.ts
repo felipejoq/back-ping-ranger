@@ -1,6 +1,6 @@
 import { Controller, Sse, Req, UseGuards, MessageEvent, Logger } from '@nestjs/common';
 import { Observable, map, startWith, finalize } from 'rxjs';
-import { Public } from '../clerk/public.decorator';
+import { Public } from '../auth/public.decorator';
 import { SseAuthGuard } from './sse-auth.guard';
 import { EventsService } from './events.service';
 

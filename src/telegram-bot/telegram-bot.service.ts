@@ -11,6 +11,7 @@ export class TelegramBotService implements OnApplicationBootstrap, OnApplication
   private readonly webhookUrl?: string;
   private polling = false;
   private offset = 0;
+  private abortController: AbortController | null = null;
 
   constructor(
     private readonly configService: ConfigService,
@@ -35,6 +36,7 @@ export class TelegramBotService implements OnApplicationBootstrap, OnApplication
 
   onApplicationShutdown() {
     this.polling = false;
+    this.abortController?.abort();
     this.logger.log('Telegram bot stopped');
   }
 
@@ -84,15 +86,17 @@ export class TelegramBotService implements OnApplicationBootstrap, OnApplication
 
   private async poll() {
     while (this.polling) {
+      this.abortController = new AbortController();
       try {
         const res = await firstValueFrom(
           this.httpService.get(`${this.apiBase}/getUpdates`, {
             params: {
               offset: this.offset,
-              timeout: 30,
+              timeout: 5,
               allowed_updates: JSON.stringify(['message', 'my_chat_member']),
             },
-            timeout: 35000,
+            timeout: 10000,
+            signal: this.abortController.signal,
           }),
         );
 
@@ -105,7 +109,7 @@ export class TelegramBotService implements OnApplicationBootstrap, OnApplication
       } catch (err) {
         if (this.polling) {
           this.logger.error(`Polling error: ${(err as Error).message}`);
-          await this.sleep(5000);
+          await this.sleepOrAbort(5000);
         }
       }
     }
@@ -177,5 +181,15 @@ export class TelegramBotService implements OnApplicationBootstrap, OnApplication
 
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private sleepOrAbort(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+      const timer = setTimeout(resolve, ms);
+      this.abortController?.signal.addEventListener('abort', () => {
+        clearTimeout(timer);
+        resolve();
+      });
+    });
   }
 }

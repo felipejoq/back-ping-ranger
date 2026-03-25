@@ -7,10 +7,10 @@ import { UpdateMonitorDto } from './dto/update-monitor.dto';
 export class MonitorsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(clerkUserId: string) {
+  findAll(userId: string) {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     return this.prisma.monitor.findMany({
-      where: { clerkUserId, deletedAt: null },
+      where: { userId, deletedAt: null },
       include: {
         incidents: {
           where: { startedAt: { gte: thirtyDaysAgo } },
@@ -21,14 +21,14 @@ export class MonitorsService {
     });
   }
 
-  async create(clerkUserId: string, dto: CreateMonitorDto) {
+  async create(userId: string, dto: CreateMonitorDto) {
     const { alertConfig, makePublic, ...monitorData } = dto;
 
     return this.prisma.$transaction(async (tx) => {
       const monitor = await tx.monitor.create({
         data: {
           ...monitorData,
-          clerkUserId,
+          userId,
           intervalMin: monitorData.intervalMin ?? 5,
           active: monitorData.active ?? true,
           publicSlug: makePublic ? this.generateSlug() : null,
@@ -54,7 +54,7 @@ export class MonitorsService {
     });
   }
 
-  async findOne(id: string, clerkUserId: string) {
+  async findOne(id: string, userId: string) {
     const monitor = await this.prisma.monitor.findUnique({
       where: { id },
       include: {
@@ -66,15 +66,15 @@ export class MonitorsService {
       },
     });
 
-    if (!monitor || monitor.clerkUserId !== clerkUserId || monitor.deletedAt) {
+    if (!monitor || monitor.userId !== userId || monitor.deletedAt) {
       throw new NotFoundException('Monitor not found');
     }
 
     return monitor;
   }
 
-  async update(id: string, clerkUserId: string, dto: UpdateMonitorDto) {
-    const existing = await this.assertOwnership(id, clerkUserId);
+  async update(id: string, userId: string, dto: UpdateMonitorDto) {
+    const existing = await this.assertOwnership(id, userId);
 
     const { alertConfig, makePublic, ...monitorData } = dto;
 
@@ -117,17 +117,17 @@ export class MonitorsService {
     });
   }
 
-  async remove(id: string, clerkUserId: string) {
-    await this.assertOwnership(id, clerkUserId);
+  async remove(id: string, userId: string) {
+    await this.assertOwnership(id, userId);
     await this.prisma.monitor.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
   }
 
-  private async assertOwnership(id: string, clerkUserId: string) {
+  private async assertOwnership(id: string, userId: string) {
     const monitor = await this.prisma.monitor.findUnique({ where: { id } });
-    if (!monitor || monitor.clerkUserId !== clerkUserId || monitor.deletedAt) {
+    if (!monitor || monitor.userId !== userId || monitor.deletedAt) {
       throw new NotFoundException('Monitor not found');
     }
     return monitor;

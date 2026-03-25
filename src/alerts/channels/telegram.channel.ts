@@ -25,7 +25,7 @@ export class TelegramChannel implements AlertChannel {
         this.httpService.post(url, {
           chat_id: this.chatId,
           text,
-          parse_mode: 'Markdown',
+          parse_mode: 'HTML',
         }),
       );
     } catch (err: unknown) {
@@ -48,11 +48,11 @@ export class TelegramChannel implements AlertChannel {
         : 'Unknown error';
 
     return (
-      `🔴 *Monitor caído*\n` +
-      `*Nombre:* ${payload.monitorName}\n` +
-      `*URL:* ${payload.monitorUrl}\n` +
-      `*Desde:* ${since}\n` +
-      `*Error:* ${errorDetail}`
+      `🔴 <b>Monitor caído</b>\n` +
+      `<b>Nombre:</b> ${payload.monitorName}\n` +
+      `<b>URL:</b> ${payload.monitorUrl}\n` +
+      `<b>Desde:</b> ${since}\n` +
+      `<b>Error:</b> ${errorDetail}`
     );
   }
 
@@ -64,10 +64,10 @@ export class TelegramChannel implements AlertChannel {
       : 0;
 
     return (
-      `🟢 *Monitor recuperado*\n` +
-      `*Nombre:* ${payload.monitorName}\n` +
-      `*URL:* ${payload.monitorUrl}\n` +
-      `*Duración del incidente:* ${durationMin} minutos`
+      `🟢 <b>Monitor recuperado</b>\n` +
+      `<b>Nombre:</b> ${payload.monitorName}\n` +
+      `<b>URL:</b> ${payload.monitorUrl}\n` +
+      `<b>Duración del incidente:</b> ${durationMin} minutos`
     );
   }
 }

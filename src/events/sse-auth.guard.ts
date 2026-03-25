@@ -5,11 +5,22 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { verifyToken } from '@clerk/backend';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 @Injectable()
 export class SseAuthGuard implements CanActivate {
+  private jwks: ReturnType<typeof createRemoteJWKSet> | null = null;
+
   constructor(private readonly configService: ConfigService) {}
+
+  private getJwks(): ReturnType<typeof createRemoteJWKSet> {
+    if (!this.jwks) {
+      const backendUrl =
+        this.configService.get<string>('BACKEND_URL') ?? 'http://localhost:3000';
+      this.jwks = createRemoteJWKSet(new URL(`${backendUrl}/api/auth/jwks`));
+    }
+    return this.jwks;
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<{
@@ -18,15 +29,11 @@ export class SseAuthGuard implements CanActivate {
     }>();
 
     const token = request.query?.token;
-    if (!token) {
-      throw new UnauthorizedException('Token required');
-    }
-
-    const secretKey = this.configService.get<string>('CLERK_SECRET_KEY')!;
+    if (!token) throw new UnauthorizedException('Token required');
 
     try {
-      const payload = await verifyToken(token, { secretKey });
-      request.auth = { userId: payload.sub };
+      const { payload } = await jwtVerify(token, this.getJwks());
+      request.auth = { userId: payload.sub as string };
       return true;
     } catch {
       throw new UnauthorizedException('Invalid token');

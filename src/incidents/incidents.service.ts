@@ -6,7 +6,7 @@ export class IncidentsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(
-    clerkUserId: string,
+    userId: string,
     monitorId: string,
     limit = 20,
     offset = 0,
@@ -15,7 +15,7 @@ export class IncidentsService {
       where: { id: monitorId },
     });
 
-    if (!monitor || monitor.clerkUserId !== clerkUserId) {
+    if (!monitor || monitor.userId !== userId) {
       throw new NotFoundException('Monitor not found');
     }
 
