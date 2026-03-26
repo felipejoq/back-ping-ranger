@@ -3,6 +3,7 @@ cmds = ["npm ci"]
 
 [phases.build]
 cmds = ["npm run build"]
+deployOutputs = ["dist"]
 
 [start]
 cmd = "sh entrypoint.sh"
