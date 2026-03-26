@@ -5,7 +5,7 @@ echo "Running database migrations..."
 npx prisma migrate deploy
 
 echo "Running Better Auth migrations..."
-./node_modules/.bin/better-auth migrate --config src/auth/auth.service.ts --yes
+yes | ./node_modules/.bin/better-auth migrate --config src/auth/auth.service.ts
 
 echo "Starting application..."
 exec node dist/main
