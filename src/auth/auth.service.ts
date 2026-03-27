@@ -19,8 +19,7 @@ export const auth = betterAuth({
   baseURL: process.env.FRONTEND_URL ?? 'http://localhost:3001',
   basePath: '/api/auth',
   emailAndPassword: {
-    enabled: true,
-    minPasswordLength: 8,
+    enabled: false,
   },
   socialProviders: {
     github: {
