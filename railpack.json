@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "build": {
+      "commands": ["npm run build"],
+      "deployOutputs": ["dist", "prisma", "prisma.config.ts", "entrypoint.sh", "src/auth"]
+    }
+  },
+  "deploy": {
+    "startCommand": "sh entrypoint.sh"
+  }
+}
