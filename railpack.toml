@@ -1,0 +1,6 @@
+[phases.build]
+cmds = ["npm run build"]
+deployOutputs = ["dist", "prisma", "prisma.config.ts", "entrypoint.sh", "src/auth"]
+
+[start]
+cmd = "sh entrypoint.sh"
