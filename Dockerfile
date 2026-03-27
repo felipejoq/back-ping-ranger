@@ -23,11 +23,17 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev --legacy-peer-deps
 
-# Copy compiled output and generated Prisma client
+# Copy compiled output (includes generated Prisma client in dist/generated)
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/src/generated ./src/generated
+
+# Copy source files needed for better-auth migrations
+COPY --from=builder /app/src/auth ./src/auth
+
+# Copy prisma config and schema
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/prisma ./prisma
+
+# Copy entrypoint
 COPY entrypoint.sh ./entrypoint.sh
 
 # Run as non-root user

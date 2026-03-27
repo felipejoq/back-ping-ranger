@@ -3,7 +3,7 @@ cmds = ["npm ci --include=dev"]
 
 [phases.build]
 cmds = ["npm run build"]
-deployOutputs = ["dist"]
+deployOutputs = ["dist", "src/auth", "prisma", "prisma.config.ts", "entrypoint.sh", "package*.json"]
 
 [start]
 cmd = "sh entrypoint.sh"

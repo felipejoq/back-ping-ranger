@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "build": {
+      "commands": ["npm run build"],
+      "deployOutputs": ["dist"]
+    }
+  },
+  "deploy": {
+    "startCommand": "sh entrypoint.sh"
+  }
+}
